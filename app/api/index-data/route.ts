@@ -29,7 +29,7 @@ export async function POST() {
 
     // 2. Prepare Documents for Langchain
     console.log('Mapping records to documents...');
-    const documents = records.map((record: Record<string, string>) => {
+    const documents = (records as Record<string, string>[]).map((record) => {
       const pageContent = `제목: ${record.title}\n내용: ${record.content}\n평점: ${record.rating}점`;
       
       return new Document({
@@ -82,7 +82,7 @@ export async function POST() {
 
     // 4. Upload to Supabase
     console.log('Mapping records for Supabase...');
-    const supabaseRecords = records.map((record: Record<string, string>) => ({
+    const supabaseRecords = (records as Record<string, string>[]).map((record) => ({
       original_id: record.id,
       rating: parseInt(record.rating),
       title: record.title,
