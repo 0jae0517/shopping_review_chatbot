@@ -2,12 +2,8 @@ import { Pinecone } from '@pinecone-database/pinecone';
 import { PineconeStore } from '@langchain/pinecone';
 import { Embeddings } from '@langchain/core/embeddings';
 
-if (!process.env.PINECONE_API_KEY) {
-  throw new Error('PINECONE_API_KEY is not defined');
-}
-
 export const pinecone = new Pinecone({
-  apiKey: process.env.PINECONE_API_KEY,
+  apiKey: process.env.PINECONE_API_KEY || 'dummy-key-for-build',
 });
 
 export const indexName = 'review-chatbot';
