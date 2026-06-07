@@ -17,11 +17,11 @@ class CustomPineconeEmbeddings extends Embeddings {
     console.log(`embedDocuments called with ${texts.length} texts`);
     if (texts.length === 0) return [];
     
-    const res = await pinecone.inference.embed({
-      model: 'multilingual-e5-large',
-      inputs: texts,
-      parameters: { inputType: 'passage', truncate: 'END' }
-    });
+    const res = await pinecone.inference.embed(
+      'multilingual-e5-large',
+      texts,
+      { inputType: 'passage', truncate: 'END' }
+    );
     
     console.log(`embedDocuments Pinecone returned ${res.data?.length} vectors`);
     if (!res.data || res.data.length === 0) {
@@ -32,12 +32,12 @@ class CustomPineconeEmbeddings extends Embeddings {
   }
 
   async embedQuery(text: string): Promise<number[]> {
-    const res = await pinecone.inference.embed({
-      model: 'multilingual-e5-large',
-      inputs: [text],
-      parameters: { inputType: 'query', truncate: 'END' }
-    });
-    return res.data[0].values;
+    const res = await pinecone.inference.embed(
+      'multilingual-e5-large',
+      [text],
+      { inputType: 'query', truncate: 'END' }
+    );
+    return (res.data[0] as any).values;
   }
 }
 

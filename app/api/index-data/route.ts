@@ -77,7 +77,7 @@ export async function POST() {
         }
       }));
 
-      await pinecone.Index(indexName).upsert({ records: pineconeVectors });
+      await pinecone.Index(indexName).upsert(pineconeVectors);
       console.log(`Uploaded batch ${i / batchSize + 1}`);
     }
 
