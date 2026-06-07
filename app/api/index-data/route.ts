@@ -3,7 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { parse } from 'csv-parse/sync';
 import { Document } from '@langchain/core/documents';
-import { getVectorStore, indexName, pinecone, getEmbeddings } from '@/lib/pinecone';
+import { indexName, pinecone, getEmbeddings } from '@/lib/pinecone';
 import { supabase } from '@/lib/supabase';
 
 export async function POST() {
@@ -29,7 +29,7 @@ export async function POST() {
 
     // 2. Prepare Documents for Langchain
     console.log('Mapping records to documents...');
-    const documents = records.map((record: any) => {
+    const documents = records.map((record: Record<string, string>) => {
       const pageContent = `제목: ${record.title}\n내용: ${record.content}\n평점: ${record.rating}점`;
       
       return new Document({
@@ -57,7 +57,6 @@ export async function POST() {
     }
 
     console.log('Uploading documents to Pinecone...');
-    const vectorStore = await getVectorStore();
     console.log('Vector store initialized');
     
     // Batch upload to prevent payload size issues
@@ -67,8 +66,8 @@ export async function POST() {
       const batch = documents.slice(i, i + batchSize);
       console.log(`Uploading batch ${i / batchSize + 1} to Pinecone...`);
       
-      const vectors = await embeddings.embedDocuments(batch.map((d: any) => d.pageContent));
-      const pineconeVectors = batch.map((doc: any, idx: number) => ({
+      const vectors = await embeddings.embedDocuments(batch.map((d: Document) => d.pageContent));
+      const pineconeVectors = batch.map((doc: Document, idx: number) => ({
         id: doc.metadata.original_id,
         values: vectors[idx],
         metadata: {
@@ -83,7 +82,7 @@ export async function POST() {
 
     // 4. Upload to Supabase
     console.log('Mapping records for Supabase...');
-    const supabaseRecords = records.map((record: any) => ({
+    const supabaseRecords = records.map((record: Record<string, string>) => ({
       original_id: record.id,
       rating: parseInt(record.rating),
       title: record.title,
@@ -107,8 +106,8 @@ export async function POST() {
 
     console.log('Indexing completed successfully');
     return NextResponse.json({ success: true, message: 'Data indexed successfully' });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Indexing error:', error);
-    return NextResponse.json({ success: false, error: error.message, stack: error.stack }, { status: 500 });
+    return NextResponse.json({ success: false, error: (error as Error).message, stack: (error as Error).stack }, { status: 500 });
   }
 }

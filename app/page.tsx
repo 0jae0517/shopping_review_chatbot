@@ -24,7 +24,7 @@ export default function Home() {
   const [hasSearched, setHasSearched] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const [chatId, setChatId] = useState<string | null>(null);
-  const [messages, setMessages] = useState<{role: string, content: string, context?: any}[]>([]);
+  const [messages, setMessages] = useState<{role: string, content: string, context?: { content: string, metadata: { title: string, rating: number } }[]}[]>([]);
   const [isIndexing, setIsIndexing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -38,8 +38,8 @@ export default function Home() {
       } else {
         alert('인덱싱 실패: ' + data.error);
       }
-    } catch (e: any) {
-      alert('에러 발생: ' + e.message);
+    } catch (e: unknown) {
+      alert('에러 발생: ' + (e as Error).message);
     } finally {
       setIsIndexing(false);
     }
@@ -70,7 +70,7 @@ export default function Home() {
       } else {
         setMessages(prev => [...prev, { role: 'bot', content: data.response, context: data.context }]);
       }
-    } catch (e: any) {
+    } catch {
       setMessages(prev => [...prev, { role: 'bot', content: '네트워크 오류가 발생했습니다.' }]);
     } finally {
       setIsLoading(false);
@@ -235,7 +235,7 @@ export default function Home() {
                           <div className="mt-6 border border-slate-200 rounded-lg overflow-hidden">
                             <button className="w-full flex items-center justify-between p-4 bg-white hover:bg-slate-50 transition-colors">
                               <span className="flex items-center gap-2 font-medium text-slate-800">
-                                <span className="text-xl leading-none font-serif text-slate-400">"</span>
+                                <span className="text-xl leading-none font-serif text-slate-400">&quot;</span>
                                 참고한 원본 리뷰 데이터 ({msg.context.length}개)
                               </span>
                               <div className="flex items-center gap-3">
@@ -243,7 +243,7 @@ export default function Home() {
                               </div>
                             </button>
                             <div className="bg-slate-50 border-t border-slate-200 p-4 max-h-60 overflow-y-auto">
-                               {msg.context.map((ctx: any, i: number) => (
+                               {msg.context.map((ctx: { metadata: { title: string, rating: number }, content: string }, i: number) => (
                                  <div key={i} className="mb-3 pb-3 border-b border-slate-200 last:border-0 last:mb-0 last:pb-0">
                                    <div className="flex items-center gap-2 mb-1">
                                      <span className="font-semibold text-slate-700 text-sm">{ctx.metadata.title}</span>

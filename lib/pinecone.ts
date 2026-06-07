@@ -24,7 +24,7 @@ class CustomPineconeEmbeddings extends Embeddings {
       throw new Error(`Pinecone inference returned ${res.data?.length} vectors for ${texts.length} texts`);
     }
     
-    return res.data.map((d: any) => d.values);
+    return res.data.map((d: { values: number[] }) => d.values);
   }
 
   async embedQuery(text: string): Promise<number[]> {
@@ -33,7 +33,7 @@ class CustomPineconeEmbeddings extends Embeddings {
       [text],
       { inputType: 'query', truncate: 'END' }
     );
-    return (res.data[0] as any).values;
+    return (res.data[0] as { values: number[] }).values;
   }
 }
 
